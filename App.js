@@ -9,33 +9,45 @@ const DATA_KEY = 'SOME_DATA';
 const App = () => {
   const [value, setValue] = useState('');
   const [dataReturn, setDataReturn] = useState('');
-
-  const onGetData = async () => {
-    const protectedData = await SInfo.getItem('key1', {
-      sharedPreferencesName: 'mySharedPrefs',
-      keychainService: 'myKeychain',
-      touchID: true,
-      showModal: true, //required (Android) - Will prompt user's fingerprint on Android
-      strings: {
-        // optional (Android) - You can personalize your prompt
-        description: 'Custom Title ',
-        header: 'Custom Description',
-      },
-      // required (iOS) -  A fallback string for iOS
-      kSecUseOperationPrompt:
-        'We need your permission to retrieve encrypted data',
-    });
-    setDataReturn(protectedData);
-  };
+  const [isDataSaved, setIsDataSaved] = useState(false);
 
   const onSaveData = async () => {
-    await SInfo.setItem(DATA_KEY, value, {
-      sharedPreferencesName: 'mySharedPrefs',
-      keychainService: 'myKeychain',
-      touchId: true, //add this key
-      showModal: true, //add this key
-      kSecAccessControl: 'kSecAccessControlBiometryAny', // optional - Add support for FaceID
-    });
+    try {
+      await SInfo.setItem(DATA_KEY, value, {
+        sharedPreferencesName: 'mySharedPrefs',
+        keychainService: 'myKeychain',
+        touchId: true, //add this key
+        showModal: true, //add this key
+        kSecAccessControl: 'kSecAccessControlBiometryAny', // optional - Add support for FaceID
+      });
+      setIsDataSaved(true);
+    } catch (error) {
+      console.warn(error);
+      console.log('error', error);
+    }
+  };
+
+  const onGetData = async () => {
+    try {
+      const protectedData = await SInfo.getItem(DATA_KEY, {
+        sharedPreferencesName: 'mySharedPrefs',
+        keychainService: 'myKeychain',
+        touchID: true,
+        showModal: true, //required (Android) - Will prompt user's fingerprint on Android
+        strings: {
+          // optional (Android) - You can personalize your prompt
+          description: 'Custom Title ',
+          header: 'Custom Description',
+        },
+        // required (iOS) -  A fallback string for iOS
+        kSecUseOperationPrompt:
+          'We need your permission to retrieve encrypted data',
+      });
+      setDataReturn(protectedData);
+    } catch (error) {
+      console.log('error', error);
+      console.warn(error);
+    }
   };
 
   const onClearAll = () => {
@@ -49,15 +61,22 @@ const App = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.container}>
         <View style={{alignItems: 'center'}}>
-          <TextInput
-            value={value}
-            placeholder={'enter secure value here'}
-            onChangeText={setValue}
-          />
-          {renderVerticalSpacing()}
-          <TouchableOpacity onPress={onSaveData} style={styles.button}>
-            <Text>Save information</Text>
-          </TouchableOpacity>
+          {!isDataSaved ? (
+            <>
+              <TextInput
+                value={value}
+                placeholder={'enter secure value here'}
+                onChangeText={setValue}
+              />
+              {renderVerticalSpacing()}
+              <TouchableOpacity onPress={onSaveData} style={styles.button}>
+                <Text>Save information</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <Text>DATA SAVED</Text>
+          )}
+
           {renderVerticalSpacing()}
           <TouchableOpacity onPress={onGetData} style={styles.button}>
             <Text>Get information</Text>

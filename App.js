@@ -53,6 +53,7 @@ const App = () => {
   const onClearAll = () => {
     setValue('');
     setDataReturn('');
+    setIsDataSaved(false);
   };
 
   const renderVerticalSpacing = () => <View style={{height: 20}} />;

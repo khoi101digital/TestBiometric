@@ -4,7 +4,7 @@ import {TouchableOpacity} from 'react-native';
 import SInfo from 'react-native-sensitive-info';
 import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
 
-const DATA_KEY = 'SOME_DATA';
+const DATA_KEY = 'SOME_DATA_2';
 
 const App = () => {
   const [value, setValue] = useState('');
@@ -16,14 +16,13 @@ const App = () => {
       await SInfo.setItem(DATA_KEY, value, {
         sharedPreferencesName: 'mySharedPrefs',
         keychainService: 'myKeychain',
-        touchId: true, //add this key
+        touchID: true, //add this key
         showModal: true, //add this key
-        kSecAccessControl: 'kSecAccessControlBiometryAny', // optional - Add support for FaceID
+        kSecAccessControl: 'kSecAccessControlBiometryCurrentSet', // optional - Add support for FaceID
       });
       setIsDataSaved(true);
     } catch (error) {
       console.warn(error);
-      console.log('error', error);
     }
   };
 
@@ -45,8 +44,8 @@ const App = () => {
       });
       setDataReturn(protectedData);
     } catch (error) {
-      console.log('error', error);
       console.warn(error);
+      console.log('error', error, error.message);
     }
   };
 
